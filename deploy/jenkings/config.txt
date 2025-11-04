@@ -1,0 +1,94 @@
+Jenkins + GitHub CI/CD — concise configuration guide
+----------------------------------------------------
+
+Goal
+- Configure Jenkins to build when GitHub pushes, and to copy artifacts / run commands on a remote server using Publish Over SSH.
+
+Prerequisites
+- Jenkins server reachable by GitHub (public IP, DNS, or tunnelling like ngrok).
+- Admin access to Jenkins and to the target remote server (SSH).
+- GitHub repo admin access.
+
+1) Install required Jenkins plugins
+- Manage Jenkins → Manage Plugins → Available:
+  - Git Plugin
+  - GitHub Plugin
+  - Publish Over SSH
+  - Credentials Plugin (if not present)
+  - (optional) GitHub Branch Source or GitHub Integration
+
+2) Generate SSH key (on Windows, run in PowerShell or Git Bash)
+- Generate key for Jenkins to use:
+  ssh-keygen -t rsa -b 4096 -C "jenkins@yourdomain"
+- Public key -> copy to remote server: append to ~/.ssh/authorized_keys
+- Private key -> will be configured in Jenkins (Publish Over SSH or Credentials)
+
+3) Configure Publish Over SSH (Manage Jenkins → Configure System)
+- Publish over SSH section:
+  - SSH Server Name: e.g. production-server
+  - Hostname: 203.0.113.12 (or DNS)
+  - Username: deploy
+  - Remote Directory: /home/deploy/app (default working directory)
+  - Authentication: paste private key (PEM) or use credentials entry
+  - Test Configuration button → verify connection
+- Save configuration.
+
+4) Jenkins global credentials (alternative)
+- Manage Jenkins → Credentials → System → Global credentials:
+  - Add SSH username with private key (select ‘Enter directly’ and paste)
+  - Use this credential in job SCM or Publish Over SSH config as needed.
+
+5) Create / update Jenkins job (Freestyle or Pipeline)
+- General:
+  - (optional) GitHub project → Project URL
+- Source Code Management → Git:
+  - Repository URL: https://github.com/your-org/your-repo.git (or SSH git@github.com:...)
+  - Credentials: select previously added credential
+  - Branch Specifier: */main (or */master, or specific branch)
+- Build Triggers:
+  - Check "GitHub hook trigger for GITScm polling"
+- Build Steps (example: send files before build, or deploy after build)
+  - Pre/Post build: "Send files or execute commands over SSH"
+    - SSH Server Name: production-server
+    - Source files: build/output/*.jar (relative to workspace)
+    - Remove prefix: optional
+    - Remote directory: /home/deploy/releases/
+    - Exec command: e.g. systemctl restart myapp or ./deploy.sh
+- Save job.
+
+6) GitHub webhook (repo settings)
+- GitHub → Your repo → Settings → Webhooks → Add webhook:
+  - Payload URL: http(s)://<jenkins-host>/github-webhook/
+    - Example: http://ci.example.com/github-webhook/
+  - Content type: application/json
+  - Secret: (optional) add same secret in Jenkins GitHub plugin if used
+  - Which events: Just the push event (or specify)
+  - Add webhook
+- Confirm webhook delivered successfully (Github shows delivery logs).
+
+7) Test
+- Trigger build manually: Jenkins job → Build Now
+- Push commit to repository and verify:
+  - GitHub webhook delivery success
+  - Jenkins job starts and build steps execute
+  - Files copied to remote server and commands run
+
+8) Troubleshooting checklist
+- Is Jenkins reachable from GitHub (firewall/NAT)?
+- Correct webhook URL and repository permissions?
+- Credentials/keys match (private key in Jenkins, public key on remote)?
+- Test connection in Publish Over SSH config
+- Jenkins logs: Manage Jenkins → System Log
+- Check GitHub webhook delivery logs for HTTP status
+
+Examples and common values
+- Branch Specifier: */main
+- Payload URL: http://<jenkins-host>/github-webhook/
+- SSH test command (on Jenkins host): ssh -i C:\path\to\id_rsa deploy@203.0.113.12 'echo ok'
+
+Notes
+- Prefer using Credentials store for SSH keys where possible.
+- For secure public access use HTTPS and valid certificates.
+- For Pipeline jobs, use the sshPublisher step or SSH steps in pipeline plugins.
+
+End of file
