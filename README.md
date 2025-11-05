@@ -1,6 +1,12 @@
-# Jenkins AWS CI/CD Demo
+# 🚀 CI/CD Pipeline Overview
 
 This project demonstrates a CI/CD pipeline using Jenkins for deploying a simple web application to AWS. Below are the details of the project structure and instructions for setup and usage.
+
+Below is the architecture of the CI/CD pipeline used in this project:
+
+<p align="center">
+  <img src="assets/Screenshot_2025-11-05_143903.png" alt="CI/CD Pipeline Diagram" width="800"/>
+</p>
 
 ## Project Structure
 
