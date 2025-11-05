@@ -5,7 +5,7 @@ This project demonstrates a CI/CD pipeline using Jenkins for deploying a simple 
 Below is the architecture of the CI/CD pipeline used in this project:
 
 <p align="center">
-  <img src="assets/Screenshot_2025-11-05_143903.png" alt="CI/CD Pipeline Diagram" width="800"/>
+  <img src="assets/Screenshot 2025-11-05 143906.png" alt="CI/CD Pipeline Diagram" width="800"/>
 </p>
 
 ## Project Structure
