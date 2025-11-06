@@ -12,7 +12,6 @@ Below is the architecture of the CI/CD pipeline used in this project:
 
 ```
 jenkins-aws-cicd-demo
-├── Jenkinsfile                # CI/CD pipeline script
 ├── deploy/
 │   ├── app/
 │   │   └── index.html         # Demo web application
@@ -27,7 +26,7 @@ jenkins-aws-cicd-demo
 1. **Clone the Repository**
    Clone this repository to your local machine using:
    ```
-   git clone <repository-url>
+   git clone https://github.com/Tushryadav/jenkings-CI-CD-pipeline
    ```
 
 2. **Install Jenkins**
